@@ -20,12 +20,17 @@ public class Element {
 	private static final double[] N = {(1-E_1)/SIZE, (1-E_2)/SIZE, (1+E_1)/SIZE, (1+E_2)/SIZE};
 	
 	private double[][] localMatrix;
+	private static double[][] fMatrix;
 	
 	public Element(Node n1, Node n2, double ro, double c, double k) {
 		NODE_1 = n1; NODE_2 = n2;
 		RO = ro; C = c; K = k;
 		L = NODE_2.getR_COORDINATE() - NODE_1.getR_COORDINATE();
 		totalL += L;				
+	}
+	
+	public static void initFmatrix(int size) {
+		fMatrix = new double[1][size];
 	}
 	
 	public void initLocalMatrix() {
@@ -40,7 +45,10 @@ public class Element {
 			
 			// bc check
 			if (NODE_2.getBC() == Node.CONVECTION_CONDITION)
-				localMatrix[1][1] += 2*alpha*totalL;			
+				localMatrix[1][1] += 2*alpha*totalL;	
+			
+			// fmatrix
+			
 		}
 		localMatrix[1][0] = localMatrix[0][1];
 	}
@@ -81,6 +89,9 @@ public class Element {
 	}
 	public static int getAlpha() {
 		return alpha;
+	}
+	public static double[][] getFmatrix() {
+		return fMatrix;
 	}
 	
 }

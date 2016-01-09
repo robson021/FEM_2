@@ -31,6 +31,7 @@ public class FEM_2 {
 		loadDataFromFile(fileName);		
 		printBasicData();
 		
+		Element.initFmatrix(nodeList.size());
 		for (Element e : elementList)
 			e.initLocalMatrix();
 		
