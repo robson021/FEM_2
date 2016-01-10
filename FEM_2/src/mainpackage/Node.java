@@ -2,7 +2,7 @@ package mainpackage;
 
 public class Node {
 	private final double TEMP_BEGIN;
-	private final int R_COORDINATE;	
+	private final double R_COORDINATE;	
 	public static final int CONVECTION_CONDITION = 1;
 	/*
 	 * Boundary condition types:	 
@@ -11,14 +11,14 @@ public class Node {
 	 */
 	private final int BC; 
 	
-	public Node(int r, double t, int bc) {
+	public Node(double r, double t, int bc) {
 		TEMP_BEGIN = t; R_COORDINATE = r; BC = bc;
 	}
 
 	public double getTEMP_BEGIN() {
 		return TEMP_BEGIN;
 	}
-	public int getR_COORDINATE() {
+	public double getR_COORDINATE() {
 		return R_COORDINATE;
 	}
 	public int getBC() {
