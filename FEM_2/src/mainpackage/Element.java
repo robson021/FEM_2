@@ -19,6 +19,8 @@ public class Element {
 	private int rMax;
 	private static int counter = 0; // for F_matrix creation. Node counter
 	
+	private double dTau;
+	
 	// possible shape functions
 	private static final double[] N = {(1-E_1)/SIZE, (1-E_2)/SIZE, (1+E_1)/SIZE, (1+E_2)/SIZE};
 	
@@ -31,6 +33,10 @@ public class Element {
 		L = NODE_2.getR_COORDINATE() - NODE_1.getR_COORDINATE();
 		totalWidth += L;				
 		rMax = NODE_2.getR_COORDINATE();
+		double a = k/(c*ro);
+		dTau = L*L/(0.5*a);
+		double nTime = (time/dTau) +1;
+		dTau = time/nTime;
 	}
 	
 	public static void initFmatrix(int size) {
@@ -43,9 +49,9 @@ public class Element {
 		for (int x=0;x<2;x++) {
 			Rp = Ni(x) * NODE_1.getR_COORDINATE() + Nj(x) * NODE_2.getR_COORDINATE();
 			double tmp = K * Rp * W/L;
-			localMatrix[0][0] += tmp + C*RO*L*Rp*W * Ni(x) * Ni(x) / time;
-			localMatrix[0][1] += -tmp + C*RO*L*Rp*W * Ni(x)*Nj(x) / time;			
-			localMatrix[1][1] += K*Rp*W/L + C*RO*Rp*L*W * Nj(x)*Nj(x) / time;
+			localMatrix[0][0] += tmp + C*RO*L*Rp*W * Ni(x) * Ni(x) / dTau;
+			localMatrix[0][1] += -tmp + C*RO*L*Rp*W * Ni(x)*Nj(x) / dTau;			
+			localMatrix[1][1] += K*Rp*W/L + C*RO*Rp*L*W * Nj(x)*Nj(x) / dTau;
 			
 			// bc check
 			if (NODE_2.getBC() == Node.CONVECTION_CONDITION)
@@ -53,10 +59,10 @@ public class Element {
 			
 			// fmatrix
 			fMatrix[0][counter] += C*RO*L* (Ni(x)*NODE_1.getTEMP_BEGIN() + 
-					Nj(x)*NODE_2.getTEMP_BEGIN()*Rp*W*Ni(x))/time;
+					Nj(x)*NODE_2.getTEMP_BEGIN()*Rp*W*Ni(x))/dTau;
 			
 			fMatrix[0][counter+1] += C*RO*L* (Ni(x)*NODE_1.getTEMP_BEGIN() + 
-					Nj(x)*NODE_2.getTEMP_BEGIN()*Rp*W*Nj(x))/time;
+					Nj(x)*NODE_2.getTEMP_BEGIN()*Rp*W*Nj(x))/dTau;
 			if (NODE_2.getBC() == Node.CONVECTION_CONDITION)
 				fMatrix[0][counter+1] += 2*rMax*alpha*tempOfEnvironment;
 			

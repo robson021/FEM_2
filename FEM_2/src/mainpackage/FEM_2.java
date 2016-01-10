@@ -1,18 +1,23 @@
 package mainpackage;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
+/*
+ * Jama download: http://math.nist.gov/javanumerics/jama/Jama-1.0.3.jar
+ */
 import Jama.Matrix;
 
 public class FEM_2 {	
 		
 	// for .csv files
-	private static final String SEPARATOR = ",";
+	private static final String SEPARATOR = ",", FILE_NAME = "result.txt";
 	
 	private List<Node> nodeList;
 	private List<Element> elementList;
@@ -39,7 +44,12 @@ public class FEM_2 {
 		initGlobalMatrix();
 		printMatrixes();	
 		double[][] solved = computeTemperatures();
-		printAndSaveToFile(solved);
+		try {
+			printAndSaveToFile(solved);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			System.out.println("Error. Cold not save result to the file.");
+		}
 	}
 	
 	private void loadDataFromFile(final String FILE_NAME) {
@@ -102,7 +112,7 @@ public class FEM_2 {
 		
 		System.out.println("\nElements values:");
 		for (Element e : elementList) {
-			System.out.printf("ro: %.2f; c: %.2f, k: %f; length: %d\n", e.getRO(), e.getC(), e.getK(), e.getL());
+			System.out.printf("ro: %.2f; c: %.2f, k: %.2f; length: %d\n", e.getRO(), e.getC(), e.getK(), e.getL());
 		}
 		System.out.print("\tElement thickness: " + Element.getTotalWidth());
 		System.out.printf("\n\tNodes total: %d; Elements total: %d\n", nodeList.size(), elementList.size());
@@ -140,12 +150,17 @@ public class FEM_2 {
 		}		
 	}
 	
-	private void printAndSaveToFile(double[][] solved) {
-		FileWriter fw = null;
+	private void printAndSaveToFile(double[][] solved) throws IOException {
+		FileWriter fw = null; // file writer
+		fw = new FileWriter(new File(FILE_NAME));
+		fw.append(Calendar.getInstance().getTime().toString() + "\n\n");
 		System.out.println("\n\tTemperatures:");
 		for (int i=0; i<nodeList.size(); i++) {
 			System.out.printf("%.2f ",solved[i][0]);
+			fw.append(String.valueOf(solved[i][0]));
+			fw.append("\n");
 		}
+		if (fw != null) fw.close();
 	}
 	
 	private double[][] computeTemperatures() {
