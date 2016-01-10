@@ -2,9 +2,12 @@ package mainpackage;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import Jama.Matrix;
 
 public class FEM_2 {	
 		
@@ -13,9 +16,7 @@ public class FEM_2 {
 	
 	private List<Node> nodeList;
 	private List<Element> elementList;
-		
-	private int tempOfEnvironment;	
-	
+			
 	private double[][] fMatrix, globalMatrix;
 	
 	// constructor
@@ -36,9 +37,9 @@ public class FEM_2 {
 			e.initLocalMatrix();
 		
 		initGlobalMatrix();
-		printMatrixes();
-		
-		
+		printMatrixes();	
+		double[][] solved = computeTemperatures();
+		printAndSaveToFile(solved);
 	}
 	
 	private void loadDataFromFile(final String FILE_NAME) {
@@ -47,11 +48,10 @@ public class FEM_2 {
 			fr = new BufferedReader(new FileReader(FILE_NAME));
 			String line = null;
 			
-			int alpha = Integer.parseInt(fr.readLine());
-			Element.setAlpha(alpha);
-			tempOfEnvironment = Integer.parseInt(fr.readLine());
-			int time = Integer.parseInt(fr.readLine());
-			Element.setTime(time);
+			// set up basic input
+			Element.setAlpha(Integer.parseInt(fr.readLine()));
+			Element.setTemperatureOfEnnv(Integer.parseInt(fr.readLine()));
+			Element.setTime(Integer.parseInt(fr.readLine()));
 			
 			Node n1, n2;
 			Element elem;
@@ -92,7 +92,8 @@ public class FEM_2 {
 	}
 	
 	private void printBasicData() {
-		System.out.printf("Alpha: %d\nTemp. of environment: %d\nTime: %d\n", Element.getAlpha(), tempOfEnvironment, Element.getTime());
+		System.out.printf("Alpha: %d\nTemp. of environment: %d\nTime: %d\n",
+				Element.getAlpha(), Element.getTempOfEnv(), Element.getTime());
 		
 		System.out.println("Nodes coordinates and temperatures:");
 		for (Node n : nodeList) {
@@ -103,7 +104,7 @@ public class FEM_2 {
 		for (Element e : elementList) {
 			System.out.printf("ro: %.2f; c: %.2f, k: %f; length: %d\n", e.getRO(), e.getC(), e.getK(), e.getL());
 		}
-		
+		System.out.print("\tElement thickness: " + Element.getTotalWidth());
 		System.out.printf("\n\tNodes total: %d; Elements total: %d\n", nodeList.size(), elementList.size());
 	}
 	
@@ -115,6 +116,11 @@ public class FEM_2 {
 				System.out.printf("%.2f ", globalMatrix[i][j]);
 			System.out.println("");
 		}
+		System.out.println("\nF matrix:");
+		double[][] fMatrix = Element.getFmatrix();
+		for (int i=0;i<SIZE;i++) {
+			System.out.printf("%.2f ",fMatrix[0][i]);
+		} System.out.println("");
 	}
 	
 	private void initGlobalMatrix() {
@@ -131,17 +137,21 @@ public class FEM_2 {
 			globalMatrix[j+1][i+1] += matrix[1][1];
 			
 			i++; j++;
+		}		
+	}
+	
+	private void printAndSaveToFile(double[][] solved) {
+		FileWriter fw = null;
+		System.out.println("\n\tTemperatures:");
+		for (int i=0; i<nodeList.size(); i++) {
+			System.out.printf("%.2f ",solved[i][0]);
 		}
-		
-		// F matrix init
-		/*fMatrix = new double[1][SIZE];
-		i=0;
-		for (Element e : elementList) {	
-			double c = e.getC();
-			double k = e.getK();
-			double ro = e.getRO();
-			fMatrix[0][i] +=  
-		} */
+	}
+	
+	private double[][] computeTemperatures() {
+		Matrix H = new Matrix(globalMatrix);
+		//return H.solve(new Matrix(Element.getFmatrix()).transpose().uminus()).getArray();		
+		return H.solve(new Matrix(Element.getFmatrix()).transpose()).getArray();	
 	}
 
 	public static void main(String[] args) {
