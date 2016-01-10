@@ -13,8 +13,9 @@ public class Element {
 	private final int L; // length of element
 	private static int time;
 	private static int dTime;
-	private static int totalL = 0; // max r 	
+	private static int totalWidth = 0; // max r 	
 	private static int alpha;
+	private int rMax;
 	
 	// possible shape functions
 	private static final double[] N = {(1-E_1)/SIZE, (1-E_2)/SIZE, (1+E_1)/SIZE, (1+E_2)/SIZE};
@@ -26,7 +27,8 @@ public class Element {
 		NODE_1 = n1; NODE_2 = n2;
 		RO = ro; C = c; K = k;
 		L = NODE_2.getR_COORDINATE() - NODE_1.getR_COORDINATE();
-		totalL += L;				
+		totalWidth += L;				
+		rMax = NODE_2.getR_COORDINATE();
 	}
 	
 	public static void initFmatrix(int size) {
@@ -45,7 +47,7 @@ public class Element {
 			
 			// bc check
 			if (NODE_2.getBC() == Node.CONVECTION_CONDITION)
-				localMatrix[1][1] += 2*alpha*totalL;	
+				localMatrix[1][1] += 2*alpha*rMax;	
 			
 			// fmatrix
 			
