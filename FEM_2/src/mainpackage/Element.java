@@ -12,7 +12,7 @@ public class Element {
 	private final double RO, C, K;
 	private final int L; // length of element
 	private static int time;
-	private static int dTime;
+	//private static int dTau;
 	private static int totalWidth = 0; // max r 	
 	private static int alpha;
 	private static int tempOfEnvironment;
@@ -33,19 +33,20 @@ public class Element {
 		rMax = NODE_2.getR_COORDINATE();
 	}
 	
-	public static void initFmatrix(int size) {
+	public static void setFmatrixSize(int size) {
 		fMatrix = new double[1][size];
 	}
 	
-	public void initLocalMatrix() {
+	public void initLocalMatrix(double avg_dTau) {
 		localMatrix = new double[2][2];
 		double Rp;
+		avg_dTau = time;
 		for (int x=0;x<2;x++) {
 			Rp = Ni(x) * NODE_1.getR_COORDINATE() + Nj(x) * NODE_2.getR_COORDINATE();
 			double tmp = K * Rp * W/L;
-			localMatrix[0][0] += tmp + C*RO*L*Rp*W * Ni(x) * Ni(x) / time;
-			localMatrix[0][1] += -tmp + C*RO*L*Rp*W * Ni(x)*Nj(x) / time;			
-			localMatrix[1][1] += K*Rp*W/L + C*RO*Rp*L*W * Nj(x)*Nj(x) / time;
+			localMatrix[0][0] += tmp + C*RO*L*Rp*W * Ni(x) * Ni(x) / avg_dTau;
+			localMatrix[0][1] += -tmp + C*RO*L*Rp*W * Ni(x)*Nj(x) / avg_dTau;			
+			localMatrix[1][1] += K*Rp*W/L + C*RO*Rp*L*W * Nj(x)*Nj(x) / avg_dTau;
 			
 			// bc check
 			if (NODE_2.getBC() == Node.CONVECTION_CONDITION)
@@ -53,10 +54,10 @@ public class Element {
 			
 			// fmatrix
 			fMatrix[0][counter] += C*RO*L* (Ni(x)*NODE_1.getTEMP_BEGIN() + 
-					Nj(x)*NODE_2.getTEMP_BEGIN()*Rp*W*Ni(x))/time;
+					Nj(x)*NODE_2.getTEMP_BEGIN()*Rp*W*Ni(x))/avg_dTau;
 			
 			fMatrix[0][counter+1] += C*RO*L* (Ni(x)*NODE_1.getTEMP_BEGIN() + 
-					Nj(x)*NODE_2.getTEMP_BEGIN()*Rp*W*Nj(x))/time;
+					Nj(x)*NODE_2.getTEMP_BEGIN()*Rp*W*Nj(x))/avg_dTau;
 			if (NODE_2.getBC() == Node.CONVECTION_CONDITION)
 				fMatrix[0][counter+1] += 2*rMax*alpha*tempOfEnvironment;
 			
@@ -95,7 +96,7 @@ public class Element {
 	}	
 	public static void setTime(int t) {
 		time = t;
-		dTime = time / 30;
+		//dTau = time / 30;
 	}
 	public static int getTime() {
 		return time;
@@ -114,5 +115,8 @@ public class Element {
 	}
 	public static int getTempOfEnv() {
 		return tempOfEnvironment;
+	}
+	public double get_a() {
+		return K/(RO * C);
 	}
 }

@@ -32,14 +32,30 @@ public class FEM_2 {
 		loadDataFromFile(fileName);		
 		printBasicData();
 		
-		Element.initFmatrix(nodeList.size());
+		Element.setFmatrixSize(nodeList.size());
+				
 		for (Element e : elementList)
-			e.initLocalMatrix();
+			e.initLocalMatrix(getAvg_dTau());
 		
 		initGlobalMatrix();
 		printMatrixes();	
 		double[][] solved = computeTemperatures();
 		printAndSaveToFile(solved);
+	}
+	
+	private double getAvg_dTau() {
+		double a = .0, dtau, dR=.0;
+		for (Element e : elementList) {
+			a += e.get_a();
+			dR += e.getL();
+		}
+		a = a / elementList.size();
+		dR = dR / elementList.size();
+		
+		dtau = dR*dR / (0.5*a);
+		double nTime = Element.getTime() / dtau +1;
+		dtau = Element.getTime() / nTime;
+		return dtau;
 	}
 	
 	private void loadDataFromFile(final String FILE_NAME) {
