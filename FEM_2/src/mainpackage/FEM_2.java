@@ -77,7 +77,7 @@ public class FEM_2 {
 				System.out.println("Bad input file.");
 				System.exit(1);
 			}
-			n1 = new Node(Integer.parseInt(val[0]), Double.parseDouble(val[1]), Integer.parseInt(val[2]));
+			n1 = new Node(Double.parseDouble(val[0]), Double.parseDouble(val[1]), Integer.parseInt(val[2]));
 			nodeList.add(n1);
 			while ((line = fr.readLine()) != null)
 			{
@@ -90,7 +90,7 @@ public class FEM_2 {
 				// loading 2nd node parameters
 				val = fr.readLine().split(SEPARATOR);		
 				if (val.length != 3) break;
-				n2 = new Node(Integer.parseInt(val[0]), Double.parseDouble(val[1]), Integer.parseInt(val[2]));
+				n2 = new Node(Double.parseDouble(val[0]), Double.parseDouble(val[1]), Integer.parseInt(val[2]));
 				nodeList.add(n2);
 				
 				elem = new Element(n1, n2, ev[0], ev[1], ev[2]);
@@ -113,12 +113,12 @@ public class FEM_2 {
 		
 		System.out.println("Nodes coordinates and temperatures:");
 		for (Node n : nodeList) {
-			System.out.printf("r: %d; t: %.2f\n", n.getR_COORDINATE(), n.getTEMP_BEGIN());
+			System.out.printf("r: %.2f; t: %.2f\n", n.getR_COORDINATE(), n.getTEMP_BEGIN());
 		}
 		
 		System.out.println("\nElements values:");
 		for (Element e : elementList) {
-			System.out.printf("ro: %.2f; c: %.2f, k: %f; length: %d\n", e.getRO(), e.getC(), e.getK(), e.getL());
+			System.out.printf("ro: %.2f; c: %.2f, k: %f; length: %.2f\n", e.getRO(), e.getC(), e.getK(), e.getL());
 		}
 		System.out.print("\tElement thickness: " + Element.getTotalWidth());
 		System.out.printf("\n\tNodes total: %d; Elements total: %d\n", nodeList.size(), elementList.size());

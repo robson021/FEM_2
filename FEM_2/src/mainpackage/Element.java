@@ -10,13 +10,13 @@ public class Element {
 	
 	private final Node NODE_1, NODE_2;
 	private final double RO, C, K;
-	private final int L; // length of element
+	private final double L; // length of element
 	private static int time;
 	//private static int dTau;
-	private static int totalWidth = 0; // max r 	
+	private static double totalWidth = 0; // max r 	
 	private static int alpha;
 	private static int tempOfEnvironment;
-	private int rMax;
+	private double rMax;
 	private static int counter = 0; // for F_matrix creation. Node counter
 	
 	// possible shape functions
@@ -75,7 +75,7 @@ public class Element {
 		else return N[3];
 	}
 	
-	public static int getTotalWidth() {
+	public static double getTotalWidth() {
 		return totalWidth;
 	}
 	
@@ -88,7 +88,7 @@ public class Element {
 	public double getK() {
 		return K;
 	}
-	public int getL() {
+	public double getL() {
 		return L;
 	}
 	public double[][] getLocalMatrix() {
