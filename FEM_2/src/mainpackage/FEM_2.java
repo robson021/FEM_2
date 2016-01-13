@@ -44,13 +44,13 @@ public class FEM_2 {
 		
 		initGlobalMatrix();
 		printMatrixes();	
-		double[][] solved = computeTemperatures();
-		try {
-			printAndSaveToFile(solved);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-			System.out.println("Error. Cold not save result to the file.");
-		}
+		computeTemperatures();
+//		try {
+//			//printAndSaveToFile(solved);
+//		} catch (IOException e1) {
+//			e1.printStackTrace();
+//			System.out.println("Error. Cold not save result to the file.");
+//		}
 	}
 	
 	private void loadDataFromFile(final String FILE_NAME) {
@@ -127,11 +127,11 @@ public class FEM_2 {
 				System.out.printf("%.2f ", globalMatrix[i][j]);
 			System.out.println("");
 		}
-		System.out.println("\nF matrix:");
+		/*System.out.println("\nF matrix:");
 		double[][] fMatrix = Element.getFmatrix();
 		for (int i=0;i<SIZE;i++) {
 			System.out.printf("%.2f ",fMatrix[0][i]);
-		} System.out.println("");
+		} System.out.println("");*/
 	}
 	
 	private void initGlobalMatrix() {
@@ -164,11 +164,42 @@ public class FEM_2 {
 		if (fw != null) fw.close();
 	}
 	
-	private double[][] computeTemperatures() {
+	private void computeTemperatures() {
 		Matrix H = new Matrix(globalMatrix);
 		//return H.solve(new Matrix(Element.getFmatrix()).transpose().uminus()).getArray();		
-		return H.solve(new Matrix(Element.getFmatrix()).transpose()).getArray();	
+		//return H.solve(new Matrix(Element.getFmatrix()).transpose()).getArray();	
+		
+		if (nodeList.size() != (elementList.size()+1))
+			System.exit(1);
+		
+		double avgDtau = .0;
+		for (Element e : elementList)
+			avgDtau += e.get_dTau();
+		avgDtau = avgDtau / elementList.size();
+		
+		int nTime = (int) ((Element.getTime() / avgDtau) +1);
+		System.out.printf("Iterations: %d\n", nTime);
+		final int SIZE = elementList.size() +1;
+		double[][] temperatureVector = new double[1][SIZE];
+		int i=0;
+		for (Node n : nodeList)
+			temperatureVector[0][i++] = n.getTEMP_BEGIN();
+		
+		System.out.println("Nodes: "+i);
+		Matrix temperatureMatrix = new Matrix(temperatureVector).transpose();
+		Matrix fMatrix = new Matrix(Element.getFmatrix());
+		fMatrix = fMatrix.transpose();
+		
+		for (i=0; i<nTime; i++) {			
+			Matrix newH = H.times(temperatureMatrix);
+			Matrix newTempV = newH.solve(fMatrix);
+			
+			
+			temperatureMatrix = newTempV;
+		}
+		
 	}
+	
 
 	public static void main(String[] args) {
 		new FEM_2().runProgram();

@@ -18,6 +18,7 @@ public class Element {
 	private static int tempOfEnvironment;
 	private double rMax;
 	private static int counter = 0; // for F_matrix creation. Node counter
+	private double[] rp;
 	
 	private double dTau;
 	
@@ -37,6 +38,7 @@ public class Element {
 		dTau = L*L/(0.5*a);
 		double nTime = (time/dTau) +1;
 		dTau = time/nTime;
+		//dTau = time;
 	}
 	
 	public static void initFmatrix(int size) {
@@ -45,9 +47,11 @@ public class Element {
 	
 	public void initLocalMatrix() {
 		localMatrix = new double[2][2];
+		rp = new double[2];
 		double Rp;
 		for (int x=0;x<2;x++) {
 			Rp = Ni(x) * NODE_1.getR_COORDINATE() + Nj(x) * NODE_2.getR_COORDINATE();
+			rp[x] = Rp;
 			double tmp = K * Rp * W/L;
 			localMatrix[0][0] += tmp + C*RO*L*Rp*W * Ni(x) * Ni(x) / dTau;
 			localMatrix[0][1] += -tmp + C*RO*L*Rp*W * Ni(x)*Nj(x) / dTau;			
@@ -64,12 +68,14 @@ public class Element {
 			fMatrix[0][counter+1] += C*RO*L* (Ni(x)*NODE_1.getTEMP_BEGIN() + 
 					Nj(x)*NODE_2.getTEMP_BEGIN()*Rp*W*Nj(x))/dTau;
 			if (NODE_2.getBC() == Node.CONVECTION_CONDITION)
-				fMatrix[0][counter+1] += 2*rMax*alpha*tempOfEnvironment;
+				fMatrix[0][counter+1] += 2*rMax*alpha*tempOfEnvironment; 
 			
 		}
 		localMatrix[1][0] = localMatrix[0][1];
 		counter++;
 	}
+	
+	//public double[][] getFmatrix()
 
 	private double Ni(int i) {
 		if (i==0) return N[0];
@@ -120,5 +126,8 @@ public class Element {
 	}
 	public static int getTempOfEnv() {
 		return tempOfEnvironment;
+	}
+	public double get_dTau() {
+		return this.dTau;
 	}
 }
