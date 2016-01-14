@@ -185,6 +185,7 @@ public class FEM_2 {
 			
 			double[][] tempVector = H.solve(new Matrix(fVector).transpose()).getArray();
 			// print
+			System.out.print("\nTemperatures: ");
 			for (int j=0; j<SIZE; j++) {
 				System.out.printf("%.2f ", tempVector[j][0]);
 			} System.out.println("");
@@ -196,6 +197,8 @@ public class FEM_2 {
 	
 	private double[][] initNewF_vector(int size) {
 		double[][] fVector = new double[1][size];
+		//for (int i=0;i<size;i++)
+			//fVector[0][i] = .0;
 		int i=0;
 		for (Element e : elementList)
 		{
@@ -204,6 +207,10 @@ public class FEM_2 {
 			fVector[0][i+1] += localM[0][1];
 			i++;
 		}
+		System.out.print("Vector F: ");
+		for (i=0;i<size;i++)
+			System.out.printf("%.2f", fVector[0][i]);
+		
 		return fVector;
 	}
 	
