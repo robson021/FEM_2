@@ -17,7 +17,7 @@ public class Element {
 	private static int alpha;
 	private static int tempOfEnvironment;
 	private double rMax;
-	private static int counter = 0; // for F_matrix creation. Node counter
+	//private static int counter = 0; // for F_matrix creation. Node counter
 	private double[] rp;
 	
 	private double dTau;
@@ -26,7 +26,8 @@ public class Element {
 	private static final double[] N = {(1-E_1)/SIZE, (1-E_2)/SIZE, (1+E_1)/SIZE, (1+E_2)/SIZE};
 	
 	private double[][] localMatrix;
-	private static double[][] fMatrix;
+	private double[][] fMatrix;
+	//private static double[][] fVector;
 	
 	public Element(Node n1, Node n2, double ro, double c, double k) {
 		NODE_1 = n1; NODE_2 = n2;
@@ -41,9 +42,6 @@ public class Element {
 		//dTau = time;
 	}
 	
-	public static void initFmatrix(int size) {
-		fMatrix = new double[1][size];
-	}
 	
 	public void initLocalMatrix() {
 		localMatrix = new double[2][2];
@@ -62,20 +60,34 @@ public class Element {
 				localMatrix[1][1] += 2*alpha*rMax;	
 			
 			// fmatrix
-			fMatrix[0][counter] += C*RO*L* (Ni(x)*NODE_1.getTEMP_BEGIN() + 
+		/*	fMatrix[0][counter] += C*RO*L* (Ni(x)*NODE_1.getTEMP_BEGIN() + 
 					Nj(x)*NODE_2.getTEMP_BEGIN()*Rp*W*Ni(x))/dTau;
 			
 			fMatrix[0][counter+1] += C*RO*L* (Ni(x)*NODE_1.getTEMP_BEGIN() + 
 					Nj(x)*NODE_2.getTEMP_BEGIN()*Rp*W*Nj(x))/dTau;
 			if (NODE_2.getBC() == Node.CONVECTION_CONDITION)
 				fMatrix[0][counter+1] += 2*rMax*alpha*tempOfEnvironment; 
-			
+			*/
 		}
 		localMatrix[1][0] = localMatrix[0][1];
-		counter++;
+		//counter++;
 	}
 	
-	//public double[][] getFmatrix()
+	public void initLocalFmatrix () {
+		fMatrix = new double[1][2];
+		for (int x=0; x<2; x++)
+		{
+			fMatrix[0][x] += C*RO*L* (Ni(x)*NODE_1.getTemp() + 
+					Nj(x)*NODE_2.getTemp()*rp[x]*W*Ni(x))/dTau;
+			
+			fMatrix[0][x] += C*RO*L* (Ni(x)*NODE_1.getTemp() + 
+					Nj(x)*NODE_2.getTemp()*rp[x]*W*Nj(x))/dTau;
+			
+			if (NODE_2.getBC() == Node.CONVECTION_CONDITION)
+				fMatrix[0][x] += 2*rMax*alpha*tempOfEnvironment; 
+		}
+	}
+	
 
 	private double Ni(int i) {
 		if (i==0) return N[0];
@@ -118,7 +130,7 @@ public class Element {
 	public static int getAlpha() {
 		return alpha;
 	}
-	public static double[][] getFmatrix() {
+	public double[][] getLocalFmatrix() {
 		return fMatrix;
 	}
 	public static void setTemperatureOfEnnv(int t) {

@@ -1,7 +1,7 @@
 package mainpackage;
 
 public class Node {
-	private final double TEMP_BEGIN;
+	private double temperature;
 	private final double R_COORDINATE;	
 	public static final int CONVECTION_CONDITION = 1;
 	/*
@@ -12,16 +12,19 @@ public class Node {
 	private final int BC; 
 	
 	public Node(double r, double t, int bc) {
-		TEMP_BEGIN = t; R_COORDINATE = r; BC = bc;
+		temperature = t; R_COORDINATE = r; BC = bc;
 	}
 
-	public double getTEMP_BEGIN() {
-		return TEMP_BEGIN;
+	public double getTemp() {
+		return temperature;
 	}
 	public double getR_COORDINATE() {
 		return R_COORDINATE;
 	}
 	public int getBC() {
 		return BC;
+	}
+	public void setTemp(double t) {
+		temperature = t;
 	}
 }

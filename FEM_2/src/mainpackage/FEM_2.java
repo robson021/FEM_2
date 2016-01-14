@@ -38,7 +38,6 @@ public class FEM_2 {
 		loadDataFromFile(fileName);		
 		printBasicData();
 		
-		Element.initFmatrix(nodeList.size());
 		for (Element e : elementList)
 			e.initLocalMatrix();
 		
@@ -108,7 +107,7 @@ public class FEM_2 {
 		
 		System.out.println("Nodes coordinates and temperatures:");
 		for (Node n : nodeList) {
-			System.out.printf("r: %.2f; t: %.2f\n", n.getR_COORDINATE(), n.getTEMP_BEGIN());
+			System.out.printf("r: %.2f; t: %.2f\n", n.getR_COORDINATE(), n.getTemp());
 		}
 		
 		System.out.println("\nElements values:");
@@ -165,9 +164,7 @@ public class FEM_2 {
 	}
 	
 	private void computeTemperatures() {
-		Matrix H = new Matrix(globalMatrix);
-		//return H.solve(new Matrix(Element.getFmatrix()).transpose().uminus()).getArray();		
-		//return H.solve(new Matrix(Element.getFmatrix()).transpose()).getArray();	
+		Matrix H = new Matrix(globalMatrix);	
 		
 		if (nodeList.size() != (elementList.size()+1))
 			System.exit(1);
@@ -178,28 +175,46 @@ public class FEM_2 {
 		avgDtau = avgDtau / elementList.size();
 		
 		int nTime = (int) ((Element.getTime() / avgDtau) +1);
-		System.out.printf("Iterations: %d\n", nTime);
+		System.out.printf("\n\tIterations: %d\n", nTime);
 		final int SIZE = elementList.size() +1;
-		double[][] temperatureVector = new double[1][SIZE];
-		int i=0;
-		for (Node n : nodeList)
-			temperatureVector[0][i++] = n.getTEMP_BEGIN();
 		
-		System.out.println("Nodes: "+i);
-		Matrix temperatureMatrix = new Matrix(temperatureVector).transpose();
-		Matrix fMatrix = new Matrix(Element.getFmatrix());
-		fMatrix = fMatrix.transpose();
-		
-		for (i=0; i<nTime; i++) {			
-			Matrix newH = H.times(temperatureMatrix);
-			Matrix newTempV = newH.solve(fMatrix);
+		for (int i=0; i<nTime; i++)
+		{			
+			System.out.printf("Step: %d\n", (i+1));
+			for (Element e : elementList)
+				e.initLocalFmatrix();
 			
+			double[][] fVector = initNewF_vector(SIZE);
 			
-			temperatureMatrix = newTempV;
+			double[][] tempVector = H.solve(new Matrix(fVector).transpose()).getArray();
+			// print
+			for (int j=0; j<SIZE; j++) {
+				System.out.printf("%.2f ", tempVector[j][0]);
+			} System.out.println("");
+			
+			updateNodesTemperature(tempVector);
 		}
 		
 	}
 	
+	private double[][] initNewF_vector(int size) {
+		double[][] fVector = new double[1][size];
+		int i=0;
+		for (Element e : elementList)
+		{
+			double[][] localM = e.getLocalFmatrix();
+			fVector[0][i] += localM[0][0];
+			fVector[0][i+1] += localM[0][1];
+			i++;
+		}
+		return fVector;
+	}
+	
+	private void updateNodesTemperature(double[][] tv) {
+		int i=0;
+		for (Node n : nodeList)
+			n.setTemp(tv[i++][0]);
+	}
 
 	public static void main(String[] args) {
 		new FEM_2().runProgram();
