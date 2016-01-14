@@ -77,14 +77,14 @@ public class Element {
 		fMatrix = new double[1][2];
 		for (int x=0; x<2; x++)
 		{
-			fMatrix[0][x] += (C*RO*L* (Ni(x)*NODE_1.getTemp() + 
-					Nj(x)*NODE_2.getTemp()*rp[x]*W*Ni(x)))/dTau;
+			fMatrix[0][0] += C*RO*L* (Ni(x)*NODE_1.getTemp() + 
+					Nj(x)*NODE_2.getTemp())*rp[x]*W*Ni(x)/dTau;
 			
-			fMatrix[0][x] += (C*RO*L* (Ni(x)*NODE_1.getTemp() + 
-					Nj(x)*NODE_2.getTemp()*rp[x]*W*Nj(x)))/dTau;
+			fMatrix[0][1] += C*RO*L* (Ni(x)*NODE_1.getTemp() + 
+					Nj(x)*NODE_2.getTemp())*rp[x]*W*Nj(x)/dTau;
 			
 			if (NODE_2.getBC() == Node.CONVECTION_CONDITION)
-				fMatrix[0][x] += 2*rMax*alpha*tempOfEnvironment; 
+				fMatrix[0][1] += 2*rMax*alpha*tempOfEnvironment;  
 		}
 	}
 	
