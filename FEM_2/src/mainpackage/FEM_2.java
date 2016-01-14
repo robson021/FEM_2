@@ -165,10 +165,7 @@ public class FEM_2 {
 	
 	private void computeTemperatures() {
 		Matrix H = new Matrix(globalMatrix);	
-		
-		if (nodeList.size() != (elementList.size()+1))
-			System.exit(1);
-		
+				
 		double avgDtau = .0;
 		for (Element e : elementList)
 			avgDtau += e.get_dTau();
