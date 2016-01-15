@@ -4,6 +4,7 @@ public class Node {
 	private double temperature;
 	private final double R_COORDINATE;	
 	public static final int CONVECTION_CONDITION = 1;
+	
 	/*
 	 * Boundary condition types:	 
 	 * 0 = none

@@ -18,7 +18,7 @@ import Jama.Matrix;
 public class FEM_2 {	
 		
 	// for .csv files
-	private static final String SEPARATOR = ",", FILE_NAME = "result.txt";
+	private static final String SEPARATOR = ",", FILE_NAME = "result.csv";
 	
 	private List<Node> nodeList;
 	private List<Element> elementList;
@@ -44,12 +44,6 @@ public class FEM_2 {
 		initGlobalMatrix();
 		printMatrixes();	
 		computeTemperatures();
-//		try {
-//			//printAndSaveToFile(solved);
-//		} catch (IOException e1) {
-//			e1.printStackTrace();
-//			System.out.println("Error. Cold not save result to the file.");
-//		}
 	}
 	
 	private void loadDataFromFile(final String FILE_NAME) {
@@ -125,12 +119,7 @@ public class FEM_2 {
 			for (j=0; j<SIZE; j++)
 				System.out.printf("%.2f ", globalMatrix[i][j]);
 			System.out.println("");
-		}
-		/*System.out.println("\nF matrix:");
-		double[][] fMatrix = Element.getFmatrix();
-		for (int i=0;i<SIZE;i++) {
-			System.out.printf("%.2f ",fMatrix[0][i]);
-		} System.out.println("");*/
+		}		
 	}
 	
 	private void initGlobalMatrix() {
@@ -150,19 +139,6 @@ public class FEM_2 {
 		}		
 	}
 	
-	private void printAndSaveToFile(double[][] solved) throws IOException {
-		FileWriter fw = null; // file writer
-		fw = new FileWriter(new File(FILE_NAME));
-		fw.append(Calendar.getInstance().getTime().toString() + "\n\n");
-		System.out.println("\n\tTemperatures:");
-		for (int i=0; i<nodeList.size(); i++) {
-			System.out.printf("%.2f ",solved[i][0]);
-			fw.append(String.valueOf(solved[i][0]));
-			fw.append("\n");
-		}
-		if (fw != null) fw.close();
-	}
-	
 	private void computeTemperatures() {
 		Matrix H = new Matrix(globalMatrix);	
 				
@@ -175,30 +151,37 @@ public class FEM_2 {
 		System.out.printf("\n\tIterations: %d\n", nTime);
 		final int SIZE = elementList.size() +1;
 		
+		StringBuilder sb = new StringBuilder();
 		for (int i=0; i<nTime; i++)
 		{			
-			System.out.printf("Step: %d\n", (i+1));
+			System.out.printf("\nStep: %d", (i+1));
 			for (Element e : elementList)
 				e.initLocalFmatrix();
 			
 			double[][] fVector = initNewF_vector(SIZE);
 			
 			double[][] tempVector = H.solve(new Matrix(fVector).transpose()).getArray();
-			// print
+			
+			// print and append to the string
+			sb.append("Step: "+ (i+1)+"\n");
 			System.out.print("\nTemperatures: ");
 			for (int j=0; j<SIZE; j++) {
 				System.out.printf("%.2f ", tempVector[j][0]);
-			} System.out.println("");
-			
-			updateNodesTemperature(tempVector);
+				sb.append(tempVector[j][0]);
+			} System.out.println(""); sb.append("\n");			
+			updateNodesTemperature(tempVector);			
 		}
-		
+		try {
+			saveToFile(sb.toString());
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			System.out.println("Error. Could not save results to the file.");
+		}
 	}
 	
 	private double[][] initNewF_vector(int size) {
 		double[][] fVector = new double[1][size];
-		//for (int i=0;i<size;i++)
-			//fVector[0][i] = .0;
+		
 		int i=0;
 		for (Element e : elementList)
 		{
@@ -207,9 +190,9 @@ public class FEM_2 {
 			fVector[0][i+1] += localM[0][1];
 			i++;
 		}
-		System.out.print("Vector F: ");
+		/*System.out.print("Vector F: ");
 		for (i=0;i<size;i++)
-			System.out.printf("%.2f", fVector[0][i]);
+			System.out.printf("%.2f", fVector[0][i]);*/
 		
 		return fVector;
 	}
@@ -218,6 +201,17 @@ public class FEM_2 {
 		int i=0;
 		for (Node n : nodeList)
 			n.setTemp(tv[i++][0]);
+	}
+	
+	private void saveToFile(String text) throws IOException {
+		FileWriter fw = null;
+		try {
+			fw = new FileWriter(new File(FILE_NAME));
+			fw.append(Calendar.getInstance().getTime().toString() + "\n\n");
+			fw.append(text);
+		} finally {
+			if (fw != null) fw.close();
+		}
 	}
 
 	public static void main(String[] args) {
