@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -18,12 +19,12 @@ import Jama.Matrix;
 public class FEM_2 {	
 		
 	// for .csv files
-	private static final String SEPARATOR = ",", FILE_NAME = "result.csv";
+	private static final String SEPARATOR = ",", FILE_NAME = "result.txt";
 	
 	private List<Node> nodeList;
 	private List<Element> elementList;
 			
-	private double[][] fMatrix, globalMatrix;
+	private double[][] globalMatrix;
 	
 	// constructor
 	public FEM_2() {
@@ -86,7 +87,6 @@ public class FEM_2 {
 				
 				n1 = n2;
 			}
-			fMatrix = new double[1][nodeList.size()];
 			if(fr != null) fr.close();
 		} catch (IOException e) {
 			e.printStackTrace();			
@@ -167,7 +167,8 @@ public class FEM_2 {
 			System.out.print("\nTemperatures: ");
 			for (int j=0; j<SIZE; j++) {
 				System.out.printf("%.2f ", tempVector[j][0]);
-				sb.append(tempVector[j][0]);
+				//sb.append(String.format("%.2f", tempVector[j][0]));
+				sb.append(new DecimalFormat("#.##").format(tempVector[j][0]));
 			} System.out.println(""); sb.append("\n");			
 			updateNodesTemperature(tempVector);			
 		}
@@ -209,6 +210,7 @@ public class FEM_2 {
 			fw = new FileWriter(new File(FILE_NAME));
 			fw.append(Calendar.getInstance().getTime().toString() + "\n\n");
 			fw.append(text);
+			System.out.println("\n\tSaved to: "+FILE_NAME);
 		} finally {
 			if (fw != null) fw.close();
 		}
