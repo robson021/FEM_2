@@ -5,10 +5,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Scanner;
 
 import Jama.Matrix;
 
@@ -33,9 +33,14 @@ public class FEM_2 {
 	}
 	
 	public void runProgram() {		
-		String fileName;
-		fileName = "src/data.txt";
+		String fileName = null;
 		
+		System.out.println("Enter file name, example: src/example.txt");
+		Scanner sc = new Scanner(System.in);
+		fileName = sc.nextLine();
+		sc.close();
+		
+		//fileName = "src/example.txt";		
 		loadDataFromFile(fileName);		
 		printBasicData();
 		
@@ -151,10 +156,12 @@ public class FEM_2 {
 		System.out.printf("\n\tIterations: %d\n", nTime);
 		final int SIZE = elementList.size() +1;
 		
+		//System.out.println("avg_dTau * nTime = " + (nTime * avgDtau));
+		
 		StringBuilder sb = new StringBuilder();
 		for (int i=0; i<nTime; i++)
 		{			
-			System.out.printf("\nStep: %d", (i+1));
+			System.out.printf("\nStep: %d; time: %.2f", (i+1), (avgDtau * i));
 			for (Element e : elementList)
 				e.initLocalFmatrix();
 			
@@ -163,12 +170,12 @@ public class FEM_2 {
 			double[][] tempVector = H.solve(new Matrix(fVector).transpose()).getArray();
 			
 			// print and append to the string
-			sb.append("Step: "+ (i+1)+"\n");
+			sb.append("Step: "+ (i+1) + "; time: " + (int)(i*avgDtau) + "\n");
 			System.out.print("\nTemperatures: ");
 			for (int j=0; j<SIZE; j++) {
 				System.out.printf("%.2f ", tempVector[j][0]);
-				//sb.append(String.format("%.2f", tempVector[j][0]));
-				sb.append(new DecimalFormat("#.##").format(tempVector[j][0]));
+				sb.append(String.format("%.2f", tempVector[j][0]) + " ");
+				//sb.append(new DecimalFormat("#.##").format(tempVector[j][0]) + " ");
 			} System.out.println(""); sb.append("\n");			
 			updateNodesTemperature(tempVector);			
 		}
@@ -176,7 +183,7 @@ public class FEM_2 {
 			saveToFile(sb.toString());
 		} catch (IOException e1) {
 			e1.printStackTrace();
-			System.out.println("Error. Could not save results to the file.");
+			System.out.println("\nError. Could not save results to the file.");
 		}
 	}
 	

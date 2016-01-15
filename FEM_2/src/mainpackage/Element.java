@@ -60,7 +60,7 @@ public class Element {
 	}
 	
 	public void initLocalFmatrix () {
-		fMatrix = new double[1][2];
+		fMatrix = new double[1][2]; // new matrix with .0 values
 		for (int x=0; x<2; x++)
 		{
 			fMatrix[0][0] += C*RO*L* (Ni(x)*NODE_1.getTemp() + 
