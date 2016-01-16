@@ -40,7 +40,7 @@ public class FEM_2 {
 		fileName = sc.nextLine();
 		sc.close();
 		
-		//fileName = "src/example.txt";		
+		//fileName = "src/problem.txt";		
 		loadDataFromFile(fileName);		
 		printBasicData();
 		
